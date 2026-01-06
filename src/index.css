@@ -1,0 +1,35 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --bg: #0c1224;
+  --panel: rgba(12, 18, 36, 0.92);
+  --panel-strong: rgba(10, 15, 30, 0.95);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f4f7ff;
+  --poke-red: #e3350d;
+  --poke-yellow: #ffcb05;
+  --poke-blue: #2a75bb;
+  --poke-dark: #0a0f1f;
+  color-scheme: dark;
+}
+
+button {
+  cursor: pointer;
+}
+
+.pokeball-float {
+  animation: pokeFloat 1.8s ease-in-out infinite;
+}
+
+@keyframes pokeFloat {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
