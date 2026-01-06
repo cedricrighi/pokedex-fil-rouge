@@ -160,7 +160,7 @@ export default function Pokedex() {
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(227,53,13,0.14),transparent_32%),radial-gradient(circle_at_82%_12%,rgba(42,117,187,0.16),transparent_30%),radial-gradient(circle_at_78%_80%,rgba(255,203,5,0.14),transparent_28%)]" />
 
-      <div className="relative container mx-auto px-4 pt-16 pb-16">
+      <div className="relative mx-auto w-full max-w-6xl px-4 pt-16 pb-16">
         <div className="flex flex-col items-start gap-4 mb-10">
           <p className="text-xs uppercase tracking-[0.26em] text-[#ffde00] drop-shadow-[0_2px_0_#2a2c74]">
             Pokédex FR

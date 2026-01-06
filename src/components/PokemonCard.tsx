@@ -27,7 +27,6 @@ export default function PokemonCard({ pokemonUrl }: { pokemonUrl: string }) {
           throw new Error(`HTTP ${response.status}`);
         }
         const data: Pokemon = await response.json();
-        console.log("data", data.types);
         data.types.map((t) => console.log(t.type.name));
 
         let frenchName = data.name;
