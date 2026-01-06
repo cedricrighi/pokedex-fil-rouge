@@ -220,7 +220,7 @@ export default function Pokedex() {
 
         {!loading && pokemonList.length > 0 && (
           <>
-            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
               {visiblePokemon.map((pokemon) => (
                 <li key={pokemon.name}>
                   <PokemonCard pokemonUrl={pokemon.url} />

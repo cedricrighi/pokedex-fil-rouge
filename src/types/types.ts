@@ -9,6 +9,13 @@ export type Pokemon = {
     };
     front_default: string;
   };
+  types: Array<{
+    slot: number;
+    type: {
+      name: string;
+      url: string;
+    };
+  }>;
   species: {
     name: string;
     url: string;

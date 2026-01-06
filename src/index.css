@@ -18,6 +18,18 @@ button {
   cursor: pointer;
 }
 
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  color: var(--text);
+}
+
 .pokeball-float {
   animation: pokeFloat 1.8s ease-in-out infinite;
 }
@@ -31,5 +43,24 @@ button {
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+.pikachu-runner {
+  position: absolute;
+  left: -120px;
+  bottom: -8px;
+  width: 72px;
+  height: 48px;
+  pointer-events: none;
+  animation: pikachuRun 12s linear infinite;
+}
+
+@keyframes pikachuRun {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(105vw);
   }
 }

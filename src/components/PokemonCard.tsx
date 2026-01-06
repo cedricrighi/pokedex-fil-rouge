@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import type { Pokemon } from "../types/types";
 import Loader from "./Loader";
+type PokemonTypeKey = keyof typeof TYPES;
+import { TYPES } from "../assets/constants";
 
 export default function PokemonCard({ pokemonUrl }: { pokemonUrl: string }) {
   const [pokemon, setPokemon] = useState<Pokemon | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [typesArray, setTypesArray] = useState<PokemonTypeKey[]>([]);
 
   const formatName = (value: string | null | undefined) => {
     if (!value) return "";
@@ -22,12 +25,16 @@ export default function PokemonCard({ pokemonUrl }: { pokemonUrl: string }) {
         setError(null);
         setPokemon(null);
         setDisplayName(null);
+        setTypesArray([]);
         const response = await fetch(pokemonUrl, { signal: controller.signal });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
         const data: Pokemon = await response.json();
-        data.types.map((t) => console.log(t.type.name));
+        const typeNames = data.types
+          .map((t) => t.type.name as PokemonTypeKey)
+          .map((name) => (name in TYPES ? name : "unknown"));
+        setTypesArray(typeNames);
 
         let frenchName = data.name;
         const speciesUrl =
@@ -99,25 +106,42 @@ export default function PokemonCard({ pokemonUrl }: { pokemonUrl: string }) {
   const nameToShow = formatName(displayName ?? pokemon?.name);
 
   return (
-    <div className="relative panel p-4 h-full flex flex-col items-center justify-center cursor-pointer border border-[#2a2c74]/60 hover:border-[#ffde00]/70 transition-all hover:-translate-y-1 overflow-hidden bg-[#0f122b]/80">
+    <button
+      onClick={() => {
+        alert("Naviguer vers " + nameToShow);
+      }}
+      className="relative panel p-4 h-full flex flex-col items-center justify-center cursor-pointer border border-[#2a2c74]/60 hover:border-[#ffde00]/70 transition-all hover:-translate-y-1 overflow-hidden bg-[#0f122b]/80"
+    >
       <div className="absolute inset-0 bg-linear-to-br from-white/5 via-transparent to-transparent" />
       <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[#ffde00]/10 blur-2xl" />
       {pokemon && imageSrc ? (
         <>
           <div className="relative mb-3">
             <img
-              className="w-24 h-24 object-contain"
+              className="w-full object-contain"
               src={imageSrc}
               alt={nameToShow}
             />
           </div>
-          <p className="text-center font-semibold text-white text-sm tracking-wide">
+          <p className="text-center font-semibold text-white text-base tracking-wide">
             {nameToShow}
           </p>
+          <div className="mt-2 flex gap-2 justify-center">
+            {typesArray.map((type) => {
+              return (
+                <img
+                  src={TYPES[type]}
+                  alt={type}
+                  key={type}
+                  className="h-8 w-8"
+                />
+              );
+            })}
+          </div>
         </>
       ) : (
         <p className="text-gray-500 text-sm">Erreur</p>
       )}
-    </div>
+    </button>
   );
 }
