@@ -39,3 +39,11 @@ export type TyradexPokemon = {
   height?: string;
   weight?: string;
 };
+
+export type GameCard = {
+  name: string;
+  description: string;
+  gradient: string;
+  path: string;
+  status?: "soon";
+};

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   STAT_LABELS,
@@ -11,7 +11,6 @@ import Loader from "../components/Loader";
 import type { TyradexStatKey } from "../types/types";
 import { useGetPokemonByIdQuery } from "../services/pokemon";
 
-type PokemonTypeKey = keyof typeof TYPES;
 const MIN_POKEMON_ID = 1;
 const MAX_POKEMON_ID = 1025;
 
@@ -41,8 +40,20 @@ export default function PokemonDetailsPage() {
       .map((t) => TYPE_NAME_TO_KEY[t.name.toLowerCase()])
       .map((name) => (name && name in TYPES ? name : "unknown")) ?? [];
 
+  const [shinySelection, setShinySelection] = useState<{
+    id: number | null;
+    shiny: boolean;
+  }>({ id: null, shiny: false });
+  const currentId = pokemon?.pokedex_id ?? null;
+  const showShiny =
+    shinySelection.id === currentId ? shinySelection.shiny : false;
+
+  const hasShiny = Boolean(pokemon?.sprites?.shiny);
   const imageSrc =
-    pokemon?.sprites?.regular || pokemon?.sprites?.shiny || undefined;
+    (showShiny && pokemon?.sprites?.shiny) ||
+    pokemon?.sprites?.regular ||
+    pokemon?.sprites?.shiny ||
+    undefined;
   const nameToShow = formatName(pokemon?.name?.fr ?? `#${pokemon?.pokedex_id}`);
   const heightMeters = pokemon?.height ?? "?";
   const weightKg = pokemon?.weight ?? "?";
@@ -63,7 +74,10 @@ export default function PokemonDetailsPage() {
 
   const statsEntries = useMemo(() => {
     if (!pokemon?.stats) return [];
-    const mapping: Array<{ key: TyradexStatKey; labelKey: keyof typeof STAT_LABELS }> = [
+    const mapping: Array<{
+      key: TyradexStatKey;
+      labelKey: keyof typeof STAT_LABELS;
+    }> = [
       { key: "hp", labelKey: "hp" },
       { key: "atk", labelKey: "attack" },
       { key: "def", labelKey: "defense" },
@@ -157,6 +171,26 @@ export default function PokemonDetailsPage() {
                 <div className="relative bg-[#0f122b]/80 border border-white/10 rounded-2xl p-6 flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-linear-to-br from-white/5 via-transparent to-transparent" />
                   <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#ffde00]/10 blur-3xl" />
+                  <div className="absolute left-4 top-4 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!hasShiny || currentId === null) return;
+                        setShinySelection((prev) => ({
+                          id: currentId,
+                          shiny:
+                            prev.id === currentId ? !prev.shiny : true,
+                        }));
+                      }}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                        hasShiny
+                          ? "border-white/20 bg-white/10 text-white hover:border-[#ffde00]/70 hover:text-[#ffde00]"
+                          : "border-white/10 bg-white/5 text-white/40 cursor-not-allowed"
+                      }`}
+                    >
+                      {showShiny ? "Shiny" : "Classique"}
+                    </button>
+                  </div>
                   {imageSrc ? (
                     <img
                       src={imageSrc}
