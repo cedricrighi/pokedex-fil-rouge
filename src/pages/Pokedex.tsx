@@ -5,19 +5,6 @@ import { TYPES, TYPES_FRENCH, TYPE_NAME_TO_KEY } from "../assets/constants";
 import { useGetPokemonListQuery } from "../services/pokemon";
 
 export default function Pokedex() {
-  const generationOptions = [
-    { id: "all", label: "Toutes les générations" },
-    { id: "1", label: "Gen 1" },
-    { id: "2", label: "Gen 2" },
-    { id: "3", label: "Gen 3" },
-    { id: "4", label: "Gen 4" },
-    { id: "5", label: "Gen 5" },
-    { id: "6", label: "Gen 6" },
-    { id: "7", label: "Gen 7" },
-    { id: "8", label: "Gen 8" },
-    { id: "9", label: "Gen 9" },
-  ];
-
   const typeOptions = [
     "all",
     "normal",
@@ -40,7 +27,7 @@ export default function Pokedex() {
     "fairy",
   ];
 
-  const [selectedGeneration, setSelectedGeneration] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [page, setPage] = useState(1);
   const itemsPerPage = 20;
@@ -67,9 +54,15 @@ export default function Pokedex() {
   const filteredPokemon = useMemo(() => {
     let result = cleanedList;
 
-    if (selectedGeneration !== "all") {
-      const genNumber = Number(selectedGeneration);
-      result = result.filter((p) => p.generation === genNumber);
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    if (normalizedSearch) {
+      result = result.filter((p) => {
+        const nameFr = p.name?.fr?.toLowerCase() ?? "";
+        const nameEn = p.name?.en?.toLowerCase() ?? "";
+        return (
+          nameFr.includes(normalizedSearch) || nameEn.includes(normalizedSearch)
+        );
+      });
     }
 
     if (selectedType !== "all") {
@@ -81,7 +74,7 @@ export default function Pokedex() {
     }
 
     return result;
-  }, [cleanedList, selectedGeneration, selectedType]);
+  }, [cleanedList, searchTerm, selectedType]);
 
   const totalPages = Math.max(
     1,
@@ -117,21 +110,17 @@ export default function Pokedex() {
         <div className="panel p-5 border border-[#2c4ac7]/50 mb-10 bg-[#0f122b]/70">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <label className="text-sm text-white/80">Génération</label>
-              <select
-                value={selectedGeneration}
+              <label className="text-sm text-white/80">Recherche</label>
+              <input
+                type="search"
+                value={searchTerm}
                 onChange={(e) => {
-                  setSelectedGeneration(e.target.value);
+                  setSearchTerm(e.target.value);
                   setPage(1);
                 }}
-                className="bg-[#0a0f1f] border border-white/10 rounded-lg px-3 py-2 text-white"
-              >
-                {generationOptions.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.label}
-                  </option>
-                ))}
-              </select>
+                placeholder="Nom du Pokémon"
+                className="bg-[#0a0f1f] border border-white/10 rounded-lg px-3 py-2 text-white placeholder:text-white/40"
+              />
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm text-white/80">Type</label>
