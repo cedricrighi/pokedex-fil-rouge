@@ -1,23 +1,41 @@
-export type Pokemon = {
-  id: number;
+export type TyradexType = {
   name: string;
-  sprites: {
-    other: {
-      "official-artwork": {
-        front_default: string;
-      };
-    };
-    front_default: string;
+  image: string;
+};
+
+export type TyradexSprites = {
+  regular: string;
+  shiny: string;
+  gmax?: {
+    regular: string;
+    shiny: string;
+  } | null;
+};
+
+export type TyradexStatKey =
+  | "hp"
+  | "atk"
+  | "def"
+  | "spe_atk"
+  | "spe_def"
+  | "vit";
+
+export type TyradexStats = Record<TyradexStatKey, number>;
+
+export type TyradexPokemon = {
+  pokedex_id: number;
+  generation: number;
+  category?: string;
+  name: {
+    fr: string;
+    en?: string;
+    jp?: string;
   };
-  types: Array<{
-    slot: number;
-    type: {
-      name: string;
-      url: string;
-    };
-  }>;
-  species: {
-    name: string;
-    url: string;
-  };
+  sprites: TyradexSprites;
+  types: TyradexType[];
+  talents: Array<{ name: string; tc: boolean }>;
+  stats: TyradexStats;
+  resistances?: Array<{ name: string; multiplier: number }>;
+  height?: string;
+  weight?: string;
 };

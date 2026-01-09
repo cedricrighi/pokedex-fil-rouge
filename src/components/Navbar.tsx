@@ -4,8 +4,14 @@ import Pikachu from "../assets/pikachu.webp";
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return pathname === path;
+    }
+    return pathname === path || pathname.startsWith(`${path}/`);
+  };
   const active = (path: string) =>
-    pathname === path ? "text-[#ffcb05]" : "text-white/90";
+    isActive(path) ? "text-[#ffcb05]" : "text-white/90";
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-[#0a0f1f]/90 backdrop-blur-xl border-b border-[#ffcb05]/40 overflow-hidden">

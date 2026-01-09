@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import PokemonCard from "../components/PokemonCard";
 import Loader from "../components/Loader";
+import { TYPES, TYPES_FRENCH, TYPE_NAME_TO_KEY } from "../assets/constants";
+import { useGetPokemonListQuery } from "../services/pokemon";
 
 export default function Pokedex() {
   const generationOptions = [
@@ -38,123 +40,66 @@ export default function Pokedex() {
     "fairy",
   ];
 
-  const [allPokemon, setAllPokemon] = useState<
-    Array<{ name: string; url: string }>
-  >([]);
-  const [pokemonList, setPokemonList] = useState<
-    Array<{ name: string; url: string }>
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [filterLoading, setFilterLoading] = useState(false);
   const [selectedGeneration, setSelectedGeneration] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
-  const [generationMap, setGenerationMap] = useState<
-    Record<string, Set<string>>
-  >({});
-  const [typeMap, setTypeMap] = useState<Record<string, Set<string>>>({});
   const [page, setPage] = useState(1);
   const itemsPerPage = 20;
 
-  useEffect(() => {
-    const firstLoad = async () => {
-      try {
-        setLoading(true);
-        const rawData = await fetch(
-          "https://pokeapi.co/api/v2/pokemon?limit=1300&offset=0"
-        );
-        const jsonData = await rawData.json();
-        setAllPokemon(jsonData.results);
-        setPokemonList(jsonData.results);
-      } catch (error) {
-        console.error("Erreur lors du chargement des Pokémons", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data, isLoading, isError } = useGetPokemonListQuery();
+  //log data, mais pas en object Object
+  console.log(
+    "Fetched Pokémon data:",
+    JSON.stringify(data?.slice(0, 5), null, 2)
+  );
 
-    firstLoad();
-  }, []);
-
-  const fetchGenerationSet = async (id: string) => {
-    try {
-      setFilterLoading(true);
-      const res = await fetch(`https://pokeapi.co/api/v2/generation/${id}`);
-      const data = await res.json();
-      const names: Set<string> = new Set(
-        (data.pokemon_species || []).map((p: { name: string }) => p.name)
-      );
-      setGenerationMap((prev) => ({ ...prev, [id]: names }));
-    } catch (error) {
-      console.error("Erreur génération", error);
-    } finally {
-      setFilterLoading(false);
-    }
+  const normalizeType = (name: string) => {
+    const key = TYPE_NAME_TO_KEY[name.toLowerCase()];
+    return key ?? "unknown";
   };
 
-  const fetchTypeSet = async (type: string) => {
-    try {
-      setFilterLoading(true);
-      const res = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
-      const data = await res.json();
-      const names = new Set<string>(
-        (data.pokemon || []).map(
-          (p: { pokemon: { name: string } }) => p.pokemon.name
+  const cleanedList = useMemo(() => {
+    const list = data ?? [];
+    return list
+      .filter(
+        (p) =>
+          p.pokedex_id &&
+          p.pokedex_id > 0 &&
+          Boolean(p.sprites?.regular || p.sprites?.shiny)
+      )
+      .sort((a, b) => a.pokedex_id - b.pokedex_id);
+  }, [data]);
+
+  const filteredPokemon = useMemo(() => {
+    let result = cleanedList;
+
+    if (selectedGeneration !== "all") {
+      const genNumber = Number(selectedGeneration);
+      result = result.filter((p) => p.generation === genNumber);
+    }
+
+    if (selectedType !== "all") {
+      result = result.filter((p) =>
+        p.types.some(
+          (t) => normalizeType(t.name) === (selectedType as keyof typeof TYPES)
         )
       );
-      setTypeMap((prev) => ({ ...prev, [type]: names }));
-    } catch (error) {
-      console.error("Erreur type", error);
-    } finally {
-      setFilterLoading(false);
     }
-  };
 
-  useEffect(() => {
-    const ensureFilters = async () => {
-      if (selectedGeneration !== "all" && !generationMap[selectedGeneration]) {
-        await fetchGenerationSet(selectedGeneration);
-      }
-      if (selectedType !== "all" && !typeMap[selectedType]) {
-        await fetchTypeSet(selectedType);
-      }
-    };
-    ensureFilters();
-  }, [selectedGeneration, selectedType, generationMap, typeMap]);
+    return result;
+  }, [cleanedList, selectedGeneration, selectedType]);
 
-  useEffect(() => {
-    let result = allPokemon;
-    if (selectedGeneration !== "all") {
-      const genSet = generationMap[selectedGeneration];
-      if (genSet) {
-        result = result.filter((p) => genSet.has(p.name));
-      }
-    }
-    if (selectedType !== "all") {
-      const typeSet = typeMap[selectedType];
-      if (typeSet) {
-        result = result.filter((p) => typeSet.has(p.name));
-      }
-    }
-    setPokemonList(result);
-    setPage(1);
-  }, [allPokemon, selectedGeneration, selectedType, generationMap, typeMap]);
-
-  useEffect(() => {
-    const totalPages = Math.max(
-      1,
-      Math.ceil(pokemonList.length / itemsPerPage)
-    );
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [pokemonList.length, page, itemsPerPage]);
-
-  const totalPages = Math.max(1, Math.ceil(pokemonList.length / itemsPerPage));
-  const startIndex = (page - 1) * itemsPerPage;
-  const visiblePokemon = pokemonList.slice(
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredPokemon.length / itemsPerPage)
+  );
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const visiblePokemon = filteredPokemon.slice(
     startIndex,
     startIndex + itemsPerPage
   );
+
+  const hasData = !isLoading && !isError && filteredPokemon.length > 0;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -169,8 +114,8 @@ export default function Pokedex() {
             Explorer les espèces
           </h1>
           <span className="text-lg text-white/80">
-            {pokemonList.length} référence{pokemonList.length > 1 ? "s" : ""}{" "}
-            filtrée
+            {filteredPokemon.length} référence
+            {filteredPokemon.length > 1 ? "s" : ""} filtrée
           </span>
         </div>
 
@@ -180,7 +125,10 @@ export default function Pokedex() {
               <label className="text-sm text-white/80">Génération</label>
               <select
                 value={selectedGeneration}
-                onChange={(e) => setSelectedGeneration(e.target.value)}
+                onChange={(e) => {
+                  setSelectedGeneration(e.target.value);
+                  setPage(1);
+                }}
                 className="bg-[#0a0f1f] border border-white/10 rounded-lg px-3 py-2 text-white"
               >
                 {generationOptions.map((g) => (
@@ -194,53 +142,67 @@ export default function Pokedex() {
               <label className="text-sm text-white/80">Type</label>
               <select
                 value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
+                onChange={(e) => {
+                  setSelectedType(e.target.value);
+                  setPage(1);
+                }}
                 className="bg-[#0a0f1f] border border-white/10 rounded-lg px-3 py-2 text-white"
               >
                 {typeOptions.map((t) => (
                   <option key={t} value={t}>
-                    {t === "all" ? "Tous les types" : t}
+                    {t === "all" ? "Tous les types" : TYPES_FRENCH[t]}
                   </option>
                 ))}
               </select>
             </div>
           </div>
-          {filterLoading && (
-            <div className="mt-4 flex items-center gap-3 text-white/70 text-sm">
-              <Loader label="Chargement des filtres..." size={42} />
-            </div>
-          )}
         </div>
 
-        {loading && (
+        {isLoading && (
           <div className="flex justify-center py-20">
             <Loader label="Chargement des Pokémons..." size={82} />
           </div>
         )}
 
-        {!loading && pokemonList.length > 0 && (
+        {!isLoading && isError && (
+          <div className="flex justify-center py-10">
+            <p className="text-white/70">
+              Impossible de charger les Pokémons. Réessaie plus tard.
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !isError && filteredPokemon.length === 0 && (
+          <div className="flex justify-center py-10">
+            <p className="text-white/70">
+              Aucun Pokémon trouvé avec ces filtres.
+            </p>
+          </div>
+        )}
+
+        {hasData && (
           <>
             <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
               {visiblePokemon.map((pokemon) => (
-                <li key={pokemon.name}>
-                  <PokemonCard pokemonUrl={pokemon.url} />
+                <li key={pokemon.pokedex_id}>
+                  <PokemonCard pokemon={pokemon} />
                 </li>
               ))}
             </ul>
             <div className="flex items-center justify-center mt-10 gap-3">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
+                disabled={currentPage === 1}
                 className="px-4 py-2 bg-[#2c4ac7]/50 text-white rounded-lg disabled:opacity-50"
               >
                 Précédent
               </button>
               <span className="text-white/80">
-                Page {page} / {totalPages}
+                Page {currentPage} / {totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
+                disabled={currentPage >= totalPages}
                 className="px-4 py-2 bg-[#2c4ac7]/50 text-white rounded-lg disabled:opacity-50"
               >
                 Suivant
