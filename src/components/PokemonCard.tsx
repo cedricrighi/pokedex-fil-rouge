@@ -4,11 +4,7 @@ import type { TyradexPokemon } from "../types/types";
 
 type PokemonTypeKey = keyof typeof TYPES;
 
-export default function PokemonCard({
-  pokemon,
-}: {
-  pokemon: TyradexPokemon;
-}) {
+export default function PokemonCard({ pokemon }: { pokemon: TyradexPokemon }) {
   const formatName = (value: string | null | undefined) => {
     if (!value) return "";
     return value.charAt(0).toUpperCase() + value.slice(1);
@@ -16,10 +12,11 @@ export default function PokemonCard({
 
   const typesArray: PokemonTypeKey[] = (pokemon?.types ?? [])
     .map((type) => TYPE_NAME_TO_KEY[type.name.toLowerCase()])
-    .map((type) => (type && type in TYPES ? type : "unknown")) as PokemonTypeKey[];
+    .map((type) =>
+      type && type in TYPES ? type : "unknown"
+    ) as PokemonTypeKey[];
 
-  const imageSrc =
-    pokemon?.sprites?.regular || pokemon?.sprites?.shiny || undefined;
+  const imageSrc = pokemon?.sprites?.regular || undefined;
   const nameToShow = formatName(pokemon?.name?.fr ?? "");
   const detailsLink = pokemon?.pokedex_id
     ? `/pokedex/pokemon/${pokemon.pokedex_id}`

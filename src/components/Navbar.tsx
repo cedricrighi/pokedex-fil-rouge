@@ -45,10 +45,16 @@ export default function Navbar() {
             Dresseurs
           </Link>
           <Link
-            to="/pokedex"
+            to="/pokedex?page=1"
             className={`px-3 py-2 text-sm font-semibold ${active("/pokedex")}`}
           >
             Pokédex
+          </Link>
+          <Link
+            to="/games"
+            className={`px-3 py-2 text-sm font-semibold ${active("/games")}`}
+          >
+            Jeux
           </Link>
         </div>
       </div>

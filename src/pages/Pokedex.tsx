@@ -46,11 +46,6 @@ export default function Pokedex() {
   const itemsPerPage = 20;
 
   const { data, isLoading, isError } = useGetPokemonListQuery();
-  //log data, mais pas en object Object
-  console.log(
-    "Fetched Pokémon data:",
-    JSON.stringify(data?.slice(0, 5), null, 2)
-  );
 
   const normalizeType = (name: string) => {
     const key = TYPE_NAME_TO_KEY[name.toLowerCase()];
