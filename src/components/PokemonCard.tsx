@@ -61,7 +61,7 @@ export default function PokemonCard({ pokemon }: { pokemon: TyradexPokemon }) {
                 !isFound ? "brightness-0" : ""
               }`}
               src={imageSrc}
-              alt={nameToShow}
+              alt={!isFound ? "Pokémon non trouvé" : nameToShow}
             />
           </div>
           <p className="text-center font-semibold text-white text-base tracking-wide">
