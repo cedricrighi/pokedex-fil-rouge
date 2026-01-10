@@ -169,9 +169,9 @@ export default function PokemonDetailsPage() {
             <div className="panel p-6 md:p-8 border border-[#2c4ac7]/60 bg-[#0b1021]/85 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
               <div className="grid gap-8 md:grid-cols-[1.1fr_1fr] items-center">
                 <div className="relative bg-[#0f122b]/80 border border-white/10 rounded-2xl p-6 flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 bg-linear-to-br from-white/5 via-transparent to-transparent" />
-                  <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#ffde00]/10 blur-3xl" />
-                  <div className="absolute left-4 top-4 flex items-center gap-2">
+                  <div className="absolute inset-0 bg-linear-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#ffde00]/10 blur-3xl pointer-events-none" />
+                  <div className="absolute left-4 top-4 z-10 flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -195,7 +195,7 @@ export default function PokemonDetailsPage() {
                     <img
                       src={imageSrc}
                       alt={nameToShow}
-                      className="relative w-full max-h-72 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,0.35)]"
+                      className="relative w-full max-h-72 object-contain drop-shadow-[0_18px_24px_rgba(0,0,0,0.35)] pointer-events-none"
                     />
                   ) : (
                     <p className="text-white/60">Image indisponible</p>
