@@ -104,6 +104,7 @@ export default function Pokedex() {
           <span className="text-lg text-white/80">
             {filteredPokemon.length} référence
             {filteredPokemon.length > 1 ? "s" : ""} filtrée
+            {filteredPokemon.length > 1 ? "s" : ""}
           </span>
         </div>
 

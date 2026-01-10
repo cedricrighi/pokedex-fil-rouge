@@ -5,6 +5,8 @@ import {
   useGetPokemonListQuery,
 } from "../../services/pokemon";
 import type { TyradexPokemon } from "../../types/types";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { addFoundPokemon } from "../../store/slices/foundSlice";
 
 type ResultState =
   | {
@@ -22,9 +24,10 @@ export default function GuessPokemon() {
   const { data: allData } = useGetPokemonListQuery();
   const nbMaxPokemon = allData ? allData.length : 0;
   const lastIdRef = useRef<number | null>(null);
-  const [_runId, setRunId] = useState(0);
+  const [runId, setRunId] = useState(0);
   const [result, setResult] = useState<ResultState | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const dispatch = useAppDispatch();
 
   const randomId = useMemo(() => {
     if (!allData?.length) return skipToken;
@@ -46,7 +49,7 @@ export default function GuessPokemon() {
 
     lastIdRef.current = roll;
     return roll;
-  }, [allData]);
+  }, [allData, runId]);
 
   const [answersChoices, setAnswersChoices] = useState<TyradexPokemon[]>([]);
 
@@ -95,6 +98,7 @@ export default function GuessPokemon() {
 
     const isCorrect = selectedId === pokemon.pokedex_id;
     if (isCorrect) {
+      dispatch(addFoundPokemon(pokemon.pokedex_id));
       setResult({
         status: "success",
         title: "Bravo !",

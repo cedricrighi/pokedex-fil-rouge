@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4">
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_20%_20%,rgba(227,53,13,0.16),transparent_32%),radial-gradient(circle_at_80%_15%,rgba(42,117,187,0.16),transparent_30%),radial-gradient(circle_at_50%_80%,rgba(255,203,5,0.14),transparent_28%)]" />
-      <div className="panel max-w-3xl w-full text-center p-12 border border-white/10 bg-[#0b1021]/85">
+      <div className="panel max-w-3xl w-full text-center p-12 border border-white/20 bg-[#0b1021]/85">
         <p className="text-sm uppercase tracking-[0.26em] text-[#ffcb05]">
           Pokédex Kanto
         </p>
@@ -13,8 +13,7 @@ export default function Home() {
           Bienvenue, dresseur.
         </h1>
         <p className="text-white/80 max-w-2xl mx-auto">
-          Choisis une action ci-dessous : créer jusqu&apos;à deux dresseurs ou
-          ouvrir le Pokédex.
+          Débloque le Pokédex progressivement en jouant aux jeux disponibles.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
           <Link
