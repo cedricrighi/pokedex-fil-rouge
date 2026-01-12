@@ -4,21 +4,9 @@ import {
   useGetPokemonByIdQuery,
   useGetPokemonListQuery,
 } from "../../services/pokemon";
-import type { TyradexPokemon } from "../../types/types";
+import type { ResultState, TyradexPokemon } from "../../types/types";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { addFoundPokemon } from "../../store/slices/foundSlice";
-
-type ResultState =
-  | {
-      status: "success";
-      title: string;
-      subtitle: string;
-    }
-  | {
-      status: "error";
-      title: string;
-      subtitle: string;
-    };
 
 export default function GuessPokemon() {
   const { data: allData } = useGetPokemonListQuery();
