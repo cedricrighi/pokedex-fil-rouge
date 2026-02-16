@@ -38,6 +38,9 @@ export type TyradexPokemon = {
   resistances?: Array<{ name: string; multiplier: number }>;
   height?: string;
   weight?: string;
+  evolution?: {
+    next: Array<{ condition: string; name: string; pokedex_id: number }>;
+  };
 };
 
 export type GameCard = {
@@ -47,3 +50,15 @@ export type GameCard = {
   path: string;
   status?: "soon";
 };
+
+export type ResultState =
+  | {
+      status: "success";
+      title: string;
+      subtitle: string;
+    }
+  | {
+      status: "error";
+      title: string;
+      subtitle: string;
+    };
