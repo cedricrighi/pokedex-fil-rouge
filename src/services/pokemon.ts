@@ -4,7 +4,7 @@ import type { TyradexPokemon } from "../types/types";
 export const pokemonApi = createApi({
   reducerPath: "pokemonApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://tyradex.vercel.app/api/v1/",
+    baseUrl: "https://tyradex.app/api/v1/",
   }),
   tagTypes: ["Pokemon"],
   endpoints: (builder) => ({

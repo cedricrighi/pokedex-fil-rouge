@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import PokemonCard from "../components/PokemonCard";
 import Loader from "../components/Loader";
-import { TYPES, TYPES_FRENCH, TYPE_NAME_TO_KEY } from "../assets/constants";
+import { TYPES_FRENCH, TYPE_NAME_TO_KEY } from "../assets/constants";
 import { useGetPokemonListQuery } from "../services/pokemon";
 import { useAppSelector } from "../hooks/useAppSelector";
 
@@ -75,9 +75,7 @@ export default function Pokedex() {
 
     if (selectedType !== "all") {
       result = result.filter((p) =>
-        p.types.some(
-          (t) => normalizeType(t.name) === (selectedType as keyof typeof TYPES),
-        ),
+        p.types.some((t) => normalizeType(t.name) === selectedType),
       );
     }
 

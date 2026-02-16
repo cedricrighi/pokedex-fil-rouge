@@ -10,6 +10,7 @@ import {
 import Loader from "../components/Loader";
 import type { TyradexStatKey } from "../types/types";
 import { useGetPokemonByIdQuery } from "../services/pokemon";
+import { useAppSelector } from "../hooks/useAppSelector";
 
 const MIN_POKEMON_ID = 1;
 const MAX_POKEMON_ID = 1025;
@@ -39,6 +40,9 @@ export default function PokemonDetailsPage() {
     pokemon?.types
       .map((t) => TYPE_NAME_TO_KEY[t.name.toLowerCase()])
       .map((name) => (name && name in TYPES ? name : "unknown")) ?? [];
+  const foundPokemonIds = useAppSelector(
+    (state) => state.found.foundPokemonIds,
+  );
 
   const [shinySelection, setShinySelection] = useState<{
     id: number | null;
@@ -71,6 +75,8 @@ export default function PokemonDetailsPage() {
           sprite: spriteFromId(pokemon.pokedex_id + 1),
         }
       : null;
+  const canGoPrevious = previous ? foundPokemonIds.includes(previous.id) : false;
+  const canGoNext = next ? foundPokemonIds.includes(next.id) : false;
 
   const statsEntries = useMemo(() => {
     if (!pokemon?.stats) return [];
@@ -133,37 +139,67 @@ export default function PokemonDetailsPage() {
         {!isLoading && !isError && pokemon && (
           <div className="relative mt-8">
             {previous ? (
-              <Link
-                to={`/pokedex/pokemon/${previous.id}`}
-                aria-label={`Pokémon précédent (#${previous.id})`}
-                className="absolute -left-2.5 sm:-left-5.5 top-1/2 -translate-y-1/2 group bg-[#0f122b]/90 border border-white/10 rounded-full px-3 py-2 flex items-center gap-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] hover:border-[#ffde00]/70 transition-colors z-10"
-              >
-                <span className="text-xl text-white/80 group-hover:text-[#ffde00]">
-                  ←
-                </span>
-                <img
-                  src={previous.sprite}
-                  alt={`Pokémon ${previous.id}`}
-                  className="h-10 w-10 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]"
-                />
-              </Link>
+              canGoPrevious ? (
+                <Link
+                  to={`/pokedex/pokemon/${previous.id}`}
+                  aria-label={`Pokémon précédent (#${previous.id})`}
+                  className="absolute -left-2.5 sm:-left-5.5 top-1/2 -translate-y-1/2 group bg-[#0f122b]/90 border border-white/10 rounded-full px-3 py-2 flex items-center gap-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] hover:border-[#ffde00]/70 transition-colors z-10"
+                >
+                  <span className="text-xl text-white/80 group-hover:text-[#ffde00]">
+                    ←
+                  </span>
+                  <img
+                    src={previous.sprite}
+                    alt={`Pokémon ${previous.id}`}
+                    className="h-10 w-10 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]"
+                  />
+                </Link>
+              ) : (
+                <div
+                  aria-disabled="true"
+                  className="absolute -left-2.5 sm:-left-5.5 top-1/2 -translate-y-1/2 bg-[#0f122b]/90 border border-white/10 rounded-full px-3 py-2 flex items-center gap-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] z-10 cursor-not-allowed"
+                >
+                  <span className="text-xl text-white/45">←</span>
+                  <img
+                    src={previous.sprite}
+                    alt={`Pokémon ${previous.id}`}
+                    className="h-10 w-10 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]"
+                    style={{ filter: "brightness(0)" }}
+                  />
+                </div>
+              )
             ) : null}
 
             {next ? (
-              <Link
-                to={`/pokedex/pokemon/${next.id}`}
-                aria-label={`Pokémon suivant (#${next.id})`}
-                className="absolute -right-2.5 sm:-right-5.5 top-1/2 -translate-y-1/2 group bg-[#0f122b]/90 border border-white/10 rounded-full px-3 py-2 flex items-center gap-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] hover:border-[#ffde00]/70 transition-colors z-10"
-              >
-                <img
-                  src={next.sprite}
-                  alt={`Pokémon ${next.id}`}
-                  className="h-10 w-10 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]"
-                />
-                <span className="text-xl text-white/80 group-hover:text-[#ffde00]">
-                  →
-                </span>
-              </Link>
+              canGoNext ? (
+                <Link
+                  to={`/pokedex/pokemon/${next.id}`}
+                  aria-label={`Pokémon suivant (#${next.id})`}
+                  className="absolute -right-2.5 sm:-right-5.5 top-1/2 -translate-y-1/2 group bg-[#0f122b]/90 border border-white/10 rounded-full px-3 py-2 flex items-center gap-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] hover:border-[#ffde00]/70 transition-colors z-10"
+                >
+                  <img
+                    src={next.sprite}
+                    alt={`Pokémon ${next.id}`}
+                    className="h-10 w-10 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]"
+                  />
+                  <span className="text-xl text-white/80 group-hover:text-[#ffde00]">
+                    →
+                  </span>
+                </Link>
+              ) : (
+                <div
+                  aria-disabled="true"
+                  className="absolute -right-2.5 sm:-right-5.5 top-1/2 -translate-y-1/2 bg-[#0f122b]/90 border border-white/10 rounded-full px-3 py-2 flex items-center gap-2 shadow-[0_12px_30px_rgba(0,0,0,0.35)] z-10 cursor-not-allowed"
+                >
+                  <img
+                    src={next.sprite}
+                    alt={`Pokémon ${next.id}`}
+                    className="h-10 w-10 object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]"
+                    style={{ filter: "brightness(0)" }}
+                  />
+                  <span className="text-xl text-white/45">→</span>
+                </div>
+              )
             ) : null}
 
             <div className="panel p-6 md:p-8 border border-[#2c4ac7]/60 bg-[#0b1021]/85 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
@@ -178,8 +214,7 @@ export default function PokemonDetailsPage() {
                         if (!hasShiny || currentId === null) return;
                         setShinySelection((prev) => ({
                           id: currentId,
-                          shiny:
-                            prev.id === currentId ? !prev.shiny : true,
+                          shiny: prev.id === currentId ? !prev.shiny : true,
                         }));
                       }}
                       className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${

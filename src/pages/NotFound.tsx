@@ -7,7 +7,7 @@ export default function NotFound() {
     <section className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(227,53,13,0.22),transparent_32%),radial-gradient(circle_at_86%_10%,rgba(42,117,187,0.22),transparent_30%),radial-gradient(circle_at_70%_78%,rgba(255,203,5,0.18),transparent_30%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.05),transparent_40%,rgba(255,255,255,0.03))]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:140px_140px] opacity-40" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[140px_140px] opacity-40" />
 
       <div className="relative mx-auto w-full max-w-6xl px-4 py-16 grid gap-12 lg:grid-cols-[1.05fr_0.95fr] items-center">
         <div className="relative space-y-8">
@@ -109,7 +109,6 @@ export default function NotFound() {
               <div className="absolute left-10 bottom-10 h-10 w-1 -rotate-12 rounded-full bg-[#60a5fa] shadow-[0_0_12px_rgba(96,165,250,0.8)]" />
               <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0a0f1f] shadow-[0_0_24px_rgba(239,68,68,0.6)] animate-pulse" />
             </div>
-
           </div>
         </div>
       </div>
