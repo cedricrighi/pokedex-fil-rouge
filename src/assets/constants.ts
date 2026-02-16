@@ -1,24 +1,24 @@
-import normal from "./types/normal.png";
-import fighting from "./types/fighting.png";
-import flying from "./types/flying.png";
-import poison from "./types/poison.png";
-import ground from "./types/ground.png";
-import rock from "./types/rock.png";
-import bug from "./types/bug.png";
-import ghost from "./types/ghost.png";
-import steel from "./types/steel.png";
-import fire from "./types/fire.png";
-import water from "./types/water.png";
-import grass from "./types/grass.png";
+import normal from "./pokeTypes/normal.png";
+import fighting from "./pokeTypes/fighting.png";
+import flying from "./pokeTypes/flying.png";
+import poison from "./pokeTypes/poison.png";
+import ground from "./pokeTypes/ground.png";
+import rock from "./pokeTypes/rock.png";
+import bug from "./pokeTypes/bug.png";
+import ghost from "./pokeTypes/ghost.png";
+import steel from "./pokeTypes/steel.png";
+import fire from "./pokeTypes/fire.png";
+import water from "./pokeTypes/water.png";
+import grass from "./pokeTypes/grass.png";
 
-import electric from "./types/electric.png";
-import psychic from "./types/psychic.png";
-import ice from "./types/ice.png";
-import dragon from "./types/dragon.png";
-import dark from "./types/dark.png";
-import fairy from "./types/fairy.png";
-import stellar from "./types/stellar.png";
-import unknown from "./types/unknown.png";
+import electric from "./pokeTypes/electric.png";
+import psychic from "./pokeTypes/psychic.png";
+import ice from "./pokeTypes/ice.png";
+import dragon from "./pokeTypes/dragon.png";
+import dark from "./pokeTypes/dark.png";
+import fairy from "./pokeTypes/fairy.png";
+import stellar from "./pokeTypes/stellar.png";
+import unknown from "./pokeTypes/unknown.png";
 
 const TYPES: Record<string, string> = Object.freeze({
   normal: normal,
@@ -124,10 +124,4 @@ const TYPE_NAME_TO_KEY: Record<string, keyof typeof TYPES> = Object.freeze({
   inconnu: "unknown",
 });
 
-export {
-  TYPES,
-  STAT_LABELS,
-  TYPES_GRADIENTS,
-  TYPES_FRENCH,
-  TYPE_NAME_TO_KEY,
-};
+export { TYPES, STAT_LABELS, TYPES_GRADIENTS, TYPES_FRENCH, TYPE_NAME_TO_KEY };

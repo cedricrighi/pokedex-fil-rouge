@@ -8,13 +8,19 @@ import type { ResultState, TyradexPokemon } from "../../types/types";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { addFoundPokemon } from "../../store/slices/foundSlice";
 
-export default function GuessPokemon() {
+const START_SCALE = 7;
+const END_SCALE = 1;
+const MAX_ATTEMPTS = 5;
+const OPTIONS_COUNT = 6;
+
+export default function ZoomMystery() {
   const { data: allData } = useGetPokemonListQuery();
-  const nbMaxPokemon = allData ? allData.length : 0;
   const lastIdRef = useRef<number | null>(null);
   const [runId, setRunId] = useState(0);
+  const [attempts, setAttempts] = useState(0);
   const [result, setResult] = useState<ResultState | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [triedIds, setTriedIds] = useState<number[]>([]);
   const dispatch = useAppDispatch();
 
   const randomId = useMemo(() => {
@@ -41,78 +47,99 @@ export default function GuessPokemon() {
     return roll;
   }, [allData, runId]);
 
-  const [answersChoices, setAnswersChoices] = useState<TyradexPokemon[]>([]);
-
   const { data: pokemon } = useGetPokemonByIdQuery(randomId);
-
   const spriteSrc =
     pokemon?.sprites?.regular ?? pokemon?.sprites?.shiny ?? null;
 
-  useEffect(() => {
-    const getFourOptions = () => {
-      if (!allData || !pokemon) return;
+  const answersChoices = useMemo(() => {
+    if (!allData || !pokemon) return [] as TyradexPokemon[];
+    const options = new Map<number, TyradexPokemon>();
+    options.set(pokemon.pokedex_id, pokemon);
 
-      const options = new Map<number, TyradexPokemon>();
-
-      options.set(pokemon.pokedex_id, pokemon);
-
-      while (options.size < 4) {
-        const randomOptionId = Math.floor(Math.random() * nbMaxPokemon) + 1;
-        if (options.has(randomOptionId)) continue;
-        const choicePokemon = allData.find(
-          (p) => p.pokedex_id === randomOptionId,
-        );
-        if (!choicePokemon) continue;
-        options.set(choicePokemon.pokedex_id, choicePokemon);
+    let safety = 0;
+    while (options.size < OPTIONS_COUNT && safety < allData.length * 2) {
+      const randomOptionId =
+        // eslint-disable-next-line react-hooks/purity
+        allData[Math.floor(Math.random() * allData.length)]?.pokedex_id;
+      if (!randomOptionId || options.has(randomOptionId)) {
+        safety += 1;
+        continue;
       }
-
-      const shuffledOptions = Array.from(options.values()).sort(
-        () => Math.random() - 0.5,
+      const choicePokemon = allData.find(
+        (p) => p.pokedex_id === randomOptionId,
       );
+      if (!choicePokemon) {
+        safety += 1;
+        continue;
+      }
+      options.set(choicePokemon.pokedex_id, choicePokemon);
+    }
 
-      setAnswersChoices(shuffledOptions);
-    };
-
-    getFourOptions();
-  }, [allData, nbMaxPokemon, pokemon]);
+    // eslint-disable-next-line react-hooks/purity
+    return Array.from(options.values()).sort(() => Math.random() - 0.5);
+  }, [allData, pokemon]);
 
   useEffect(() => {
+    setAttempts(0);
     setResult(null);
     setSelectedId(null);
+    setTriedIds([]);
   }, [pokemon?.pokedex_id]);
 
-  const verifyAnswer = (selectedId: number) => {
-    if (!pokemon || result) return;
+  const attemptsLeft = Math.max(0, MAX_ATTEMPTS - attempts);
+  const isGameOver = Boolean(result);
+  const zoomStep = ((START_SCALE - END_SCALE) / MAX_ATTEMPTS) * 1.5;
+  console.log(zoomStep);
 
-    setSelectedId(selectedId);
+  const currentScale = isGameOver
+    ? END_SCALE
+    : Math.max(END_SCALE, START_SCALE - attempts * zoomStep);
 
-    const isCorrect = selectedId === pokemon.pokedex_id;
-    if (isCorrect) {
+  const verifyAnswer = (choiceId: number) => {
+    if (!pokemon || isGameOver || attempts >= MAX_ATTEMPTS) return;
+
+    const nextAttempts = attempts + 1;
+    setAttempts(nextAttempts);
+    setSelectedId(choiceId);
+    setTriedIds((prev) =>
+      prev.includes(choiceId) ? prev : [...prev, choiceId],
+    );
+
+    if (choiceId === pokemon.pokedex_id) {
       dispatch(addFoundPokemon(pokemon.pokedex_id));
       setResult({
         status: "success",
-        title: "Bravo !",
-        subtitle: `${pokemon.name.fr} rejoint ton palmarès.`,
+        title: "Bien joué !",
+        subtitle: `${pokemon.name.fr} rejoint ton Pokédex.`,
       });
       return;
     }
 
-    setResult({
-      status: "error",
-      title: "Dommage...",
-      subtitle: `C'était #${pokemon.pokedex_id.toString().padStart(3, "0")} ${
-        pokemon.name.fr
-      }.`,
-    });
+    if (nextAttempts >= MAX_ATTEMPTS) {
+      setResult({
+        status: "error",
+        title: "Oh... c'était ça, dommage.",
+        subtitle: `#${pokemon.pokedex_id
+          .toString()
+          .padStart(3, "0")} ${pokemon.name.fr}.`,
+      });
+    }
   };
 
   const nextPokemon = () => {
     if (!allData?.length) return;
     setResult(null);
     setSelectedId(null);
-    setAnswersChoices([]);
+    setAttempts(0);
+    setTriedIds([]);
     setRunId((prev) => prev + 1);
   };
+
+  const showWrongAttempt =
+    !isGameOver &&
+    selectedId != null &&
+    pokemon &&
+    selectedId !== pokemon.pokedex_id;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -124,11 +151,11 @@ export default function GuessPokemon() {
             Jeu
           </p>
           <h1 className="text-4xl font-black text-white drop-shadow-[0_3px_0_#2a2c74]">
-            Qui est ce Pokémon ?
+            Zoom Mystère
           </h1>
           <p className="text-white/70 max-w-xl mx-auto">
-            Observe la silhouette et choisis le bon Pokémon parmi les quatre
-            propositions.
+            L'image démarre hyper zoomée. À chaque tentative, elle se dézoome un
+            peu.
           </p>
         </div>
 
@@ -137,15 +164,14 @@ export default function GuessPokemon() {
             <div className="absolute inset-0 bg-linear-to-br from-white/5 via-transparent to-transparent" />
             <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#ffde00]/10 blur-3xl" />
             {spriteSrc ? (
-              <img
-                className={`relative max-h-80 w-full object-contain ${
-                  result?.status === "success"
-                    ? "brightness-100"
-                    : "brightness-0 animate-pulse"
-                } drop-shadow-[0_0px_12px_rgba(255,255,255,1)]`}
-                src={spriteSrc}
-                alt={"Pokémon à deviner"}
-              />
+              <div className="relative h-80 w-full max-w-sm overflow-hidden rounded-2xl bg-[#0b1021]/70 border border-white/10">
+                <img
+                  className="h-full w-full object-contain transition-transform duration-500 ease-out"
+                  style={{ transform: `scale(${currentScale})` }}
+                  src={spriteSrc}
+                  alt="Pokémon à deviner"
+                />
+              </div>
             ) : (
               <div className="flex flex-col items-center gap-2 text-white/60">
                 <div className="h-28 w-28 rounded-full border border-white/10 bg-white/5 animate-pulse" />
@@ -158,10 +184,10 @@ export default function GuessPokemon() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] uppercase tracking-[0.26em] text-[#ffcb05]">
-                  4 propositions
+                  Propositions
                 </p>
                 <p className="text-lg font-semibold text-white">
-                  Choisis le bon Pokémon
+                  Tentatives restantes : {attemptsLeft}
                 </p>
               </div>
               <button
@@ -172,6 +198,18 @@ export default function GuessPokemon() {
                 ↻ Nouveau Pokémon
               </button>
             </div>
+
+            {showWrongAttempt && (
+              <div className="mt-4 flex items-start gap-3 rounded-xl border border-[#ef4444]/60 bg-[#ef4444]/10 px-4 py-3">
+                <span className="mt-1 inline-block h-2.5 w-2.5 rounded-full bg-[#ef4444] shadow-[0_0_0_6px_rgba(239,68,68,0.12)]" />
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-semibold text-white">Raté...</p>
+                  <p className="text-sm text-white/80">
+                    Ça dézoome un peu. Essaie encore !
+                  </p>
+                </div>
+              </div>
+            )}
 
             {result && (
               <div
@@ -198,33 +236,41 @@ export default function GuessPokemon() {
             )}
 
             <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4">
-              {answersChoices.map((choice) => (
-                <button
-                  onClick={() => verifyAnswer(choice.pokedex_id)}
-                  type="button"
-                  key={choice.pokedex_id}
-                  disabled={Boolean(result)}
-                  className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#0f122b]/80 px-4 py-3 text-left transition-all duration-200 shadow-[0_10px_26px_rgba(0,0,0,0.25)] ${
-                    result
-                      ? choice.pokedex_id === pokemon?.pokedex_id
-                        ? "border-[#22c55e]/70 bg-[#16a34a]/10"
-                        : choice.pokedex_id === selectedId
-                          ? "border-[#ef4444]/70 bg-[#ef4444]/5"
-                          : "opacity-70"
-                      : "hover:-translate-y-0.5 hover:border-[#ffde00]/60"
-                  } ${result ? "cursor-default" : ""}`}
-                >
-                  <div className="absolute inset-0 bg-linear-to-r from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[11px] uppercase tracking-[0.18em] text-[#ffcb05]">
-                      #{choice.pokedex_id.toString().padStart(3, "0")}
-                    </span>
-                    <span className="text-base font-semibold text-white truncate">
-                      {choice.name.fr}
-                    </span>
-                  </div>
-                </button>
-              ))}
+              {answersChoices.map((choice) => {
+                const isCorrect = choice.pokedex_id === pokemon?.pokedex_id;
+                const isSelected = choice.pokedex_id === selectedId;
+                const isDisabled = isGameOver || attempts >= MAX_ATTEMPTS;
+
+                return (
+                  <button
+                    onClick={() => verifyAnswer(choice.pokedex_id)}
+                    type="button"
+                    key={choice.pokedex_id}
+                    disabled={isDisabled}
+                    className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#0f122b]/80 px-4 py-3 text-left transition-all duration-200 shadow-[0_10px_26px_rgba(0,0,0,0.25)] ${
+                      result
+                        ? isCorrect
+                          ? "border-[#22c55e]/70 bg-[#16a34a]/10"
+                          : isSelected
+                            ? "border-[#ef4444]/70 bg-[#ef4444]/5"
+                            : "opacity-70"
+                        : triedIds.includes(choice.pokedex_id)
+                          ? "opacity-70"
+                          : "hover:-translate-y-0.5 hover:border-[#ffde00]/60"
+                    } ${isDisabled ? "cursor-default" : ""}`}
+                  >
+                    <div className="absolute inset-0 bg-linear-to-r from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[11px] uppercase tracking-[0.18em] text-[#ffcb05]">
+                        #{choice.pokedex_id.toString().padStart(3, "0")}
+                      </span>
+                      <span className="text-base font-semibold text-white truncate">
+                        {choice.name.fr}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </section>
         </div>

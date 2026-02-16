@@ -16,6 +16,12 @@ const GAMES: GameCard[] = [
     gradient: "from-[#42a5f5] via-[#478ed1] to-[#5c6bc0]",
     path: "find-pokemon-by-image",
   },
+  {
+    name: "Zoom Mystère",
+    description: "Devine quel Pokémon se cache derrière une image zoomée.",
+    gradient: "from-[#66bb6a] via-[#43a047] to-[#2e7d32]",
+    path: "zoom-mystery",
+  },
 ];
 
 export default function Game() {

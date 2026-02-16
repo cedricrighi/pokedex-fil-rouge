@@ -9,6 +9,8 @@ import PokemonDetails from "./pages/PokemonDetails";
 import Game from "./pages/Game";
 import GuessPokemon from "./components/games/GuessPokemon";
 import FindPokemonByImage from "./components/games/FindPokemonByImage";
+import ZoomMystery from "./components/games/ZoomMystery";
+import NotFound from "./pages/NotFound";
 
 function App() {
   const [users, setUsers] = useState<string[]>([]);
@@ -41,7 +43,9 @@ function App() {
             path="find-pokemon-by-image"
             element={<FindPokemonByImage />}
           />
+          <Route path="zoom-mystery" element={<ZoomMystery />}></Route>
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );

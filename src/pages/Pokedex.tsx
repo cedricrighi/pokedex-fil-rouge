@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PokemonCard from "../components/PokemonCard";
 import Loader from "../components/Loader";
 import { TYPES, TYPES_FRENCH, TYPE_NAME_TO_KEY } from "../assets/constants";
 import { useGetPokemonListQuery } from "../services/pokemon";
+import { useAppSelector } from "../hooks/useAppSelector";
 
 export default function Pokedex() {
   const typeOptions = [
@@ -33,6 +34,13 @@ export default function Pokedex() {
   const itemsPerPage = 20;
 
   const { data, isLoading, isError } = useGetPokemonListQuery();
+  const foundPokemonIds = useAppSelector(
+    (state) => state.found.foundPokemonIds,
+  );
+
+  useEffect(() => {
+    console.log("Pokémons trouvés :", foundPokemonIds);
+  }, [foundPokemonIds]);
 
   const normalizeType = (name: string) => {
     const key = TYPE_NAME_TO_KEY[name.toLowerCase()];
@@ -46,7 +54,7 @@ export default function Pokedex() {
         (p) =>
           p.pokedex_id &&
           p.pokedex_id > 0 &&
-          Boolean(p.sprites?.regular || p.sprites?.shiny)
+          Boolean(p.sprites?.regular || p.sprites?.shiny),
       )
       .sort((a, b) => a.pokedex_id - b.pokedex_id);
   }, [data]);
@@ -68,8 +76,8 @@ export default function Pokedex() {
     if (selectedType !== "all") {
       result = result.filter((p) =>
         p.types.some(
-          (t) => normalizeType(t.name) === (selectedType as keyof typeof TYPES)
-        )
+          (t) => normalizeType(t.name) === (selectedType as keyof typeof TYPES),
+        ),
       );
     }
 
@@ -78,13 +86,13 @@ export default function Pokedex() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredPokemon.length / itemsPerPage)
+    Math.ceil(filteredPokemon.length / itemsPerPage),
   );
   const currentPage = Math.min(page, totalPages);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const visiblePokemon = filteredPokemon.slice(
     startIndex,
-    startIndex + itemsPerPage
+    startIndex + itemsPerPage,
   );
 
   const hasData = !isLoading && !isError && filteredPokemon.length > 0;
@@ -102,9 +110,9 @@ export default function Pokedex() {
             Explorer les espèces
           </h1>
           <span className="text-lg text-white/80">
-            {filteredPokemon.length} référence
-            {filteredPokemon.length > 1 ? "s" : ""} filtrée
-            {filteredPokemon.length > 1 ? "s" : ""}
+            {foundPokemonIds.length} Pokémon
+            {foundPokemonIds.length > 1 ? "s" : ""} trouvés sur{" "}
+            {cleanedList.length}
           </span>
         </div>
 
