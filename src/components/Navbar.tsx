@@ -1,9 +1,38 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import pokeballImg from "../assets/pokeball.png";
 import Pikachu from "../assets/pikachu.webp";
+import { AUTH_STORAGE_KEY, logout } from "../utils/auth/auth";
+import { useState } from "react";
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const user = localStorage.getItem(AUTH_STORAGE_KEY);
+  console.log(user);
+
+  const [userName, setUserName] = useState<string | null>(null);
+  const getUserName = async () => {
+    const response = await fetch("http://localhost:3000/profile", {
+      headers: {
+        Authorization: `Bearer ${user}`,
+      },
+    });
+    if (!response.ok) {
+      logout();
+      navigate("/auth", { replace: true });
+      return null;
+    }
+    const data = await response.json();
+
+    setUserName(data.user.username);
+  };
+
+  getUserName();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth", { replace: true });
+  };
   const isActive = (path: string) => {
     if (path === "/") {
       return pathname === path;
@@ -56,6 +85,17 @@ export default function Navbar() {
           >
             Jeux
           </Link>
+          <div className="ml-3 flex items-center gap-2 rounded-full border border-white/10 bg-[#0f122b]/80 px-3 py-1.5 text-xs text-white/85">
+            <span className="h-2 w-2 rounded-full bg-[#52ff42] shadow-[0_0_10px_rgba(82,255,66,0.7)]" />
+            <span>{userName}</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="rounded-full border border-[#ffcb05]/40 px-3 py-1.5 text-xs font-semibold text-[#ffcb05] transition hover:border-[#ffcb05] hover:bg-[#ffcb05]/10"
+          >
+            Déconnexion
+          </button>
         </div>
       </div>
       <div className="pikachu-runner" aria-hidden="true">

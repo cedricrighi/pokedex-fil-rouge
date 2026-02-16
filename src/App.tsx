@@ -11,43 +11,57 @@ import GuessPokemon from "./components/games/GuessPokemon";
 import FindPokemonByImage from "./components/games/FindPokemonByImage";
 import ZoomMystery from "./components/games/ZoomMystery";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+function ProtectedLayout() {
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
+}
 
 function App() {
   const [users, setUsers] = useState<string[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
   return (
-    <>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route
-          path="/user"
-          element={
-            <User
-              users={users}
-              setUsers={setUsers}
-              selectedUser={selectedUser}
-              setSelectedUser={setSelectedUser}
-            />
-          }
-        />
-        <Route path="/pokedex" element={<Outlet />}>
-          <Route index element={<Pokedex />} />
-          <Route path="pokemon/:id" element={<PokemonDetails />} />
-        </Route>
-        <Route path="/games" element={<Outlet />}>
-          <Route index element={<Game />} />
-          <Route path="guess-pokemon" element={<GuessPokemon />} />
+    <Routes>
+      <Route path="/auth" element={<Auth />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedLayout />}>
+          <Route path="/" element={<Home />} />
           <Route
-            path="find-pokemon-by-image"
-            element={<FindPokemonByImage />}
+            path="/user"
+            element={
+              <User
+                users={users}
+                setUsers={setUsers}
+                selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+              />
+            }
           />
-          <Route path="zoom-mystery" element={<ZoomMystery />}></Route>
+          <Route path="/pokedex" element={<Outlet />}>
+            <Route index element={<Pokedex />} />
+            <Route path="pokemon/:id" element={<PokemonDetails />} />
+          </Route>
+          <Route path="/games" element={<Outlet />}>
+            <Route index element={<Game />} />
+            <Route path="guess-pokemon" element={<GuessPokemon />} />
+            <Route
+              path="find-pokemon-by-image"
+              element={<FindPokemonByImage />}
+            />
+            <Route path="zoom-mystery" element={<ZoomMystery />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
         </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </>
+      </Route>
+    </Routes>
   );
 }
 
