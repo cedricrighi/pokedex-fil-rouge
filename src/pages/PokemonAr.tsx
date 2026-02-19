@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useGetPokemonByIdQuery } from "../services/pokemon";
+import "@google/model-viewer";
 
 export default function PokemonAr() {
   const { id } = useParams<{ id: string }>();

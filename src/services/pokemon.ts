@@ -23,7 +23,7 @@ export const pokemonApi = createApi({
     }),
     getPokemonById: builder.query<TyradexPokemon, string | number>({
       query: (id) => `pokemon/${id}`,
-      providesTags: (result, error, id) => [{ type: "Pokemon", id }],
+      providesTags: (_result, _error, id) => [{ type: "Pokemon", id }],
     }),
   }),
 });
