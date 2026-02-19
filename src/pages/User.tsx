@@ -22,7 +22,7 @@ export default function User({
         <div className="flex items-center justify-between mb-10 gap-4">
           <div>
             <h1 className="text-5xl font-black text-white drop-shadow-[0_3px_0_#2a2c74]">
-              Entraîneurs Pokémon
+              Dresseurs Pokémon
             </h1>
           </div>
           <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full border border-[#ffde00]/40 bg-[#0f122b]/80 text-xs text-[#ffde00]">
@@ -36,7 +36,7 @@ export default function User({
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.22em] text-white/70">
-                  Entraîneur actif
+                  Dresseur actif
                 </p>
                 <h2 className="text-3xl font-bold text-[#ffde00] drop-shadow-[0_2px_0_#2a2c74]">
                   {selectedUser ?? "Non sélectionné"}
@@ -73,7 +73,7 @@ export default function User({
           <div className="panel p-8 border border-[#2c4ac7]/50 mt-8 bg-[#0b1021]/80">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-[#ffde00] drop-shadow-[0_2px_0_#2a2c74]">
-                Tes entraîneurs
+                Tes dresseurs
               </h3>
               <span className="text-xs uppercase tracking-[0.22em] text-white/70">
                 Sélection rapide
@@ -99,7 +99,7 @@ export default function User({
                     />
                   </div>
                   <p className="text-xs text-white/60 mt-1">
-                    Choisir comme entraîneur actif
+                    Choisir comme dresseur actif
                   </p>
                 </button>
               ))}

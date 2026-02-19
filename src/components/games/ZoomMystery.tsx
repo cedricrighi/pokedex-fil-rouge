@@ -1,11 +1,12 @@
 import { skipToken } from "@reduxjs/toolkit/query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useGetPokemonByIdQuery,
   useGetPokemonListQuery,
 } from "../../services/pokemon";
 import type { ResultState, TyradexPokemon } from "../../types/types";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import { addFoundPokemon } from "../../store/slices/foundSlice";
 
 const START_SCALE = 7;
@@ -13,41 +14,41 @@ const END_SCALE = 1;
 const MAX_ATTEMPTS = 5;
 const OPTIONS_COUNT = 6;
 
+const getRandomId = (ids: number[], excludeId?: number | null) => {
+  if (!ids.length) return null;
+  const pool = excludeId == null ? ids : ids.filter((id) => id !== excludeId);
+  const availableIds = pool.length ? pool : ids;
+  // eslint-disable-next-line react-hooks/purity
+  return availableIds[Math.floor(Math.random() * availableIds.length)];
+};
+
 export default function ZoomMystery() {
   const { data: allData } = useGetPokemonListQuery();
-  const lastIdRef = useRef<number | null>(null);
-  const [runId, setRunId] = useState(0);
+  const [pokemonId, setPokemonId] = useState<number | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [result, setResult] = useState<ResultState | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [triedIds, setTriedIds] = useState<number[]>([]);
   const dispatch = useAppDispatch();
+  const foundPokemonIds = useAppSelector(
+    (state) => state.found.foundPokemonIds,
+  );
 
-  const randomId = useMemo(() => {
-    if (!allData?.length) return skipToken;
-    if (allData.length === 1) {
-      const soloId = allData[0].pokedex_id;
-      lastIdRef.current = soloId;
-      return soloId;
-    }
+  const unfoundIds = useMemo(() => {
+    if (!allData?.length) return [];
+    const foundIdsSet = new Set(foundPokemonIds);
+    return allData
+      .map((pokemon) => pokemon.pokedex_id)
+      .filter((id) => !foundIdsSet.has(id));
+  }, [allData, foundPokemonIds]);
 
-    // eslint-disable-next-line react-hooks/purity
-    let roll = allData[Math.floor(Math.random() * allData.length)].pokedex_id;
+  useEffect(() => {
+    if (pokemonId !== null) return;
+    const initialId = getRandomId(unfoundIds);
+    if (initialId !== null) setPokemonId(initialId);
+  }, [pokemonId, unfoundIds]);
 
-    if (lastIdRef.current !== null && allData.length > 1) {
-      let safety = 0;
-      while (roll === lastIdRef.current && safety < 15) {
-        // eslint-disable-next-line react-hooks/purity
-        roll = allData[Math.floor(Math.random() * allData.length)].pokedex_id;
-        safety += 1;
-      }
-    }
-
-    lastIdRef.current = roll;
-    return roll;
-  }, [allData, runId]);
-
-  const { data: pokemon } = useGetPokemonByIdQuery(randomId);
+  const { data: pokemon } = useGetPokemonByIdQuery(pokemonId ?? skipToken);
   const spriteSrc =
     pokemon?.sprites?.regular ?? pokemon?.sprites?.shiny ?? null;
 
@@ -89,7 +90,6 @@ export default function ZoomMystery() {
   const attemptsLeft = Math.max(0, MAX_ATTEMPTS - attempts);
   const isGameOver = Boolean(result);
   const zoomStep = ((START_SCALE - END_SCALE) / MAX_ATTEMPTS) * 1.5;
-  console.log(zoomStep);
 
   const currentScale = isGameOver
     ? END_SCALE
@@ -132,7 +132,7 @@ export default function ZoomMystery() {
     setSelectedId(null);
     setAttempts(0);
     setTriedIds([]);
-    setRunId((prev) => prev + 1);
+    setPokemonId((prevId) => getRandomId(unfoundIds, prevId));
   };
 
   const showWrongAttempt =

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   STAT_LABELS,
@@ -11,6 +11,8 @@ import Loader from "../components/Loader";
 import type { TyradexStatKey } from "../types/types";
 import { useGetPokemonByIdQuery } from "../services/pokemon";
 import { useAppSelector } from "../hooks/useAppSelector";
+import QRCodeStyling from "qr-code-styling";
+import pokeball from "../assets/pokeball.png";
 
 const MIN_POKEMON_ID = 1;
 const MAX_POKEMON_ID = 1025;
@@ -75,7 +77,9 @@ export default function PokemonDetailsPage() {
           sprite: spriteFromId(pokemon.pokedex_id + 1),
         }
       : null;
-  const canGoPrevious = previous ? foundPokemonIds.includes(previous.id) : false;
+  const canGoPrevious = previous
+    ? foundPokemonIds.includes(previous.id)
+    : false;
   const canGoNext = next ? foundPokemonIds.includes(next.id) : false;
 
   const statsEntries = useMemo(() => {
@@ -101,6 +105,49 @@ export default function PokemonDetailsPage() {
 
   const mainType = types[0] ?? "unknown";
   const gradient = TYPES_GRADIENTS[mainType] ?? TYPES_GRADIENTS.unknown;
+
+  const qrContainerRef = useRef<HTMLDivElement | null>(null);
+  const qrCodeRef = useRef<QRCodeStyling | null>(null);
+
+  useEffect(() => {
+    if (!pokemon?.pokedex_id || !qrContainerRef.current) return;
+
+    const arUrl = `http://10.31.32.108:5173/ar/${pokemon.pokedex_id}`;
+
+    if (!qrCodeRef.current) {
+      qrCodeRef.current = new QRCodeStyling({
+        width: 220,
+        height: 220,
+        data: arUrl,
+        type: "svg",
+        qrOptions: { typeNumber: 0, mode: "Byte", errorCorrectionLevel: "H" },
+        dotsOptions: {
+          type: "rounded",
+          color: "#6a1a4c",
+          roundSize: true,
+          gradient: {
+            type: "radial",
+            rotation: 0.7853981633974483,
+            colorStops: [
+              { offset: 0, color: "#e53935" },
+              { offset: 1, color: "#343434" },
+            ],
+          },
+        },
+        cornersSquareOptions: { type: "extra-rounded", color: "#e53935" },
+        cornersDotOptions: { type: "dot", color: "#343434" },
+        backgroundOptions: { color: "#ffffff" },
+        image: pokeball,
+        imageOptions: { imageSize: 0.22, margin: 6, crossOrigin: "anonymous" },
+      });
+
+      qrContainerRef.current.innerHTML = "";
+      qrCodeRef.current.append(qrContainerRef.current);
+      return;
+    }
+
+    qrCodeRef.current.update({ data: arUrl });
+  }, [pokemon?.pokedex_id]);
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -321,6 +368,24 @@ export default function PokemonDetailsPage() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+
+              <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4 md:p-6">
+                <p className="text-sm text-white/70">
+                  Scanne pour ouvrir en AR
+                </p>
+                <div className="mt-3 flex flex-col items-center gap-3">
+                  <div
+                    ref={qrContainerRef}
+                    className="rounded-xl bg-white p-2"
+                  />
+                  <Link
+                    to={`/ar/${pokemon.pokedex_id}`}
+                    className="text-sm font-semibold text-[#ffde00] hover:text-white transition-colors"
+                  >
+                    Ouvrir le mode AR
+                  </Link>
                 </div>
               </div>
             </div>

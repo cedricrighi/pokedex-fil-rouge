@@ -5,7 +5,7 @@ interface PokemonFoundState {
 }
 
 const initialState: PokemonFoundState = {
-  foundPokemonIds: [],
+  foundPokemonIds: [483, 484],
 };
 
 export const foundSlice = createSlice({

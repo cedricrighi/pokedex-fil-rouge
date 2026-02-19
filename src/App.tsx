@@ -13,6 +13,7 @@ import ZoomMystery from "./components/games/ZoomMystery";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PokemonAr from "./pages/PokemonAr";
 
 function ProtectedLayout() {
   return (
@@ -30,6 +31,7 @@ function App() {
   return (
     <Routes>
       <Route path="/auth" element={<Auth />} />
+      <Route path="/ar/:id" element={<PokemonAr />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<ProtectedLayout />}>

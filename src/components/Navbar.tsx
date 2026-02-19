@@ -12,7 +12,7 @@ export default function Navbar() {
 
   const [userName, setUserName] = useState<string | null>(null);
   const getUserName = async () => {
-    const response = await fetch("http://localhost:3000/profile", {
+    const response = await fetch("http://10.31.32.108:3000/profile", {
       headers: {
         Authorization: `Bearer ${user}`,
       },
