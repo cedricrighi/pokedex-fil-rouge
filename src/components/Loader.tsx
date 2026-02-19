@@ -1,3 +1,5 @@
+import pokeballImg from "../assets/pokeball.png";
+
 type LoaderProps = {
   label?: string;
   size?: number;
@@ -22,7 +24,7 @@ export default function Loader({
         style={style}
       >
         <img
-          src="/src/assets/pokeball.png"
+          src={pokeballImg}
           alt="Pokéball"
           className="relative w-full h-full object-contain drop-shadow-[0_8px_14px_rgba(0,0,0,0.35)]"
         />

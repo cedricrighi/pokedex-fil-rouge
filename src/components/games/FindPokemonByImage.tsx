@@ -11,8 +11,6 @@ export default function FindPokemonByImage() {
     return allData[Math.floor(Math.random() * allData.length)];
   }, [allData]);
 
-  console.log(pokemonToGuess);
-
   const spriteSrc = pokemonToGuess?.sprites?.regular || null;
   const result = {
     status: null,
