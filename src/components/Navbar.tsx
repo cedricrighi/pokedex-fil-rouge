@@ -1,33 +1,56 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import pokeballImg from "../assets/pokeball.png";
 import Pikachu from "../assets/pikachu.webp";
-import { AUTH_STORAGE_KEY, logout } from "../utils/auth/auth";
-import { useState } from "react";
+import { API_BASE_URL, AUTH_STORAGE_KEY, logout } from "../utils/auth/auth";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const user = localStorage.getItem(AUTH_STORAGE_KEY);
-  console.log(user);
 
   const [userName, setUserName] = useState<string | null>(null);
-  const getUserName = async () => {
-    const response = await fetch("http://10.31.32.108:3000/profile", {
-      headers: {
-        Authorization: `Bearer ${user}`,
-      },
-    });
-    if (!response.ok) {
-      logout();
-      navigate("/auth", { replace: true });
-      return null;
+
+  useEffect(() => {
+    if (!user) {
+      setUserName(null);
+      return;
     }
-    const data = await response.json();
 
-    setUserName(data.user.username);
-  };
+    let cancelled = false;
 
-  getUserName();
+    const getUserName = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/profile`, {
+          headers: {
+            Authorization: `Bearer ${user}`,
+          },
+        });
+        if (!response.ok) {
+          if (!cancelled) {
+            logout();
+            navigate("/auth", { replace: true });
+          }
+          return;
+        }
+        const data = await response.json();
+        if (!cancelled) {
+          setUserName(data.user.username);
+        }
+      } catch {
+        if (!cancelled) {
+          logout();
+          navigate("/auth", { replace: true });
+        }
+      }
+    };
+
+    void getUserName();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, user]);
 
   const handleLogout = () => {
     logout();

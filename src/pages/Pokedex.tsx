@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import PokemonCard from "../components/PokemonCard";
 import Loader from "../components/Loader";
 import { TYPES_FRENCH, TYPE_NAME_TO_KEY } from "../assets/constants";
@@ -37,10 +37,6 @@ export default function Pokedex() {
   const foundPokemonIds = useAppSelector(
     (state) => state.found.foundPokemonIds,
   );
-
-  useEffect(() => {
-    console.log("Pokémons trouvés :", foundPokemonIds);
-  }, [foundPokemonIds]);
 
   const normalizeType = (name: string) => {
     const key = TYPE_NAME_TO_KEY[name.toLowerCase()];

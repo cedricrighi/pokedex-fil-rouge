@@ -1,4 +1,10 @@
 export const AUTH_STORAGE_KEY = "pokedex-auth-user";
+const DEFAULT_DEV_API_BASE_URL = "http://10.31.32.108:3000";
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ??
+  (import.meta.env.DEV ? DEFAULT_DEV_API_BASE_URL : window.location.origin)
+).replace(/\/+$/, "");
 
 export async function login(name: string, password: string) {
   const normalized = name.trim();
@@ -7,7 +13,7 @@ export async function login(name: string, password: string) {
     return false;
   }
 
-  const response = await fetch("http://10.31.32.108:3000/login", {
+  const response = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -29,3 +35,5 @@ export async function login(name: string, password: string) {
 export function logout() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
 }
+
+export { API_BASE_URL };

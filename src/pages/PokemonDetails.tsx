@@ -16,6 +16,9 @@ import pokeball from "../assets/pokeball.png";
 
 const MIN_POKEMON_ID = 1;
 const MAX_POKEMON_ID = 1025;
+const APP_ORIGIN = (
+  import.meta.env.VITE_APP_ORIGIN ?? window.location.origin
+).replace(/\/+$/, "");
 
 const formatName = (value: string | null | undefined) => {
   if (!value) return "";
@@ -112,7 +115,7 @@ export default function PokemonDetailsPage() {
   useEffect(() => {
     if (!pokemon?.pokedex_id || !qrContainerRef.current) return;
 
-    const arUrl = `http://10.31.32.108:5173/ar/${pokemon.pokedex_id}`;
+    const arUrl = `${APP_ORIGIN}/ar/${pokemon.pokedex_id}`;
 
     if (!qrCodeRef.current) {
       qrCodeRef.current = new QRCodeStyling({
