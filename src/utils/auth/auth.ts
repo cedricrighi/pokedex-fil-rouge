@@ -7,7 +7,7 @@ export async function login(name: string, password: string) {
     return false;
   }
 
-  const response = await fetch("http://localhost:3000/login", {
+  const response = await fetch("http://10.31.32.108:3000/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
