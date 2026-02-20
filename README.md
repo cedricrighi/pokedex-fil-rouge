@@ -77,3 +77,5 @@ Utilisation de l'IA :
 - pour trouver un premier design du site et se baser dessus en suite
 - pour générer les types longs comme celui du TyradexPokemon
 - en cas de bug ( comme pour le coup du math.random qui est "impur")
+
+  En cas de clonage de ce repo, le backend n'est pas inclus dans le repo, et il faut changer DEFAULT_DEV_API_BASE_URL dans auth.ts par celle du back
